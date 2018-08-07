@@ -1,0 +1,34 @@
+{
+  "author": "Cícero Cazé",
+  "name": "jquery-spa",
+  "version": "0.0.1",
+  "description": "A Single Page Application based on JQuery.",
+  "license": "ISC",
+  "main": "app.js",
+  "homepage": "https://github.com/cicerocaze/jquery-spa#readme",
+  "bugs": {
+    "url": "https://github.com/cicerocaze/jquery-spa/issues"
+  },
+  "scripts": {
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cicerocaze/jquery-spa.git"
+  },
+  "keywords": [
+    "node",
+    "jquery",
+    "spa",
+    "single",
+    "page",
+    "application"
+  ]
+}
