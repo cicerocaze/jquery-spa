@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Node.js multiplayer game</title>
+        <title>Single Page App with JQuery</title>
         <meta charset="utf-8"/>
         <meta name="description" content="A Single Page Application based on JQuery."/>
         <base href="/">
         <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    </head>
-    <body>
         <style>
             body {
                 margin: 0;
@@ -53,7 +51,6 @@
             /* Style the tab content */
             .tabcontent {
                 display: none;
-                padding: 6px 12px;
                 border: 1px solid #ccc;
                 border-top: none;
             }
@@ -61,74 +58,150 @@
             .inputText {
                 width: 100%;
             }
+
+            .accordion {
+                background-color: #fff;
+                color: #444;
+                cursor: pointer;
+                padding: 18px;
+                width: 100%;
+                border: none;
+                text-align: left;
+                outline: none;
+                font-size: 15px;
+                transition: 0.4s;
+            }
+
+            .active, .accordion:hover {
+                background-color: #ccc; 
+            }
+
+            .panel {
+                padding: 0 18px;
+                background-color: white;
+                overflow: hidden;
+            }
+
         </style>
+    </head>
+    <body>
         <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'postsContainer')">Posts</button>
-            <button class="tablinks" onclick="openTab(event, 'newPosts')">Novo Post</button>
-            <button class="tablinks" onclick="openTab(event, 'newComment')">Novo Comentário</button>
-        </div>
-        <div id="postsContainer" class="tabcontent">
-            <ul id="posts"></ul>
+            <button class="tablinks" onclick="openTab(event, 'posts')">Posts</button>
+            <button class="tablinks" onclick="openTab(event, 'users')">Users</button>
+            <button class="tablinks" onclick="openTab(event, 'comments')">Comments</button>
         </div>
         
-        <div id="newPosts" class="tabcontent">
-            <form id="postVal" class="postVal" method="post" action="#" onsubmit="return sendNewPost()">
-                <p>Título do Post:</p>
-                    <input class="inputText" type="text" placeholder="Título do Post"><br>
-                <p>Conteúdo do Post:</p>
-                    <input class="inputText" type="text" placeholder="Conteúdo do Post"><br>
-                <p>
-                <input type="submit" value="Submit">
-            </form>
-            <ul id="newPost"></ul>
-        </div>
-        
-        <div id="newComment" class="tabcontent">
-            <form id="commentVal" class="commentVal" method="post" action="#" onsubmit="return sendNewPost()">
-                <p>Título do Comentário:</p>
-                    <input class="inputText" type="text" placeholder="Título do comentário"><br>
-                <p>Conteúdo do Comentário:</p>
-                    <input class="inputText" type="text" placeholder="Conteúdo do comentário"><br>
-                <p>
-                <input type="submit" onclick="" value="Submit">
-            </form>
-        </div>
+        <div id='posts' class='tabcontent'></div>
+        <div id="users" class="tabcontent"></div>
+        <div id="comments" class="tabcontent"></div>
+
         <script>
-            function openTab(evt, cityName) {
-                var i, tabcontent, tablinks;
+            //Tabs
+            function openTab(evt, tag) {
+                var tabcontent, tablinks;
                 tabcontent = document.getElementsByClassName("tabcontent");
-                for (i = 0; i < tabcontent.length; i++) {
+                for (var i = 0; i < tabcontent.length; i++) {
                     tabcontent[i].style.display = "none";
                 }
                 tablinks = document.getElementsByClassName("tablinks");
-                for (i = 0; i < tablinks.length; i++) {
+                for (var i = 0; i < tablinks.length; i++) {
                     tablinks[i].className = tablinks[i].className.replace(" active", "");
                 }
-                document.getElementById(cityName).style.display = "block";
+                document.getElementById(tag).style.display = "block";
                 evt.currentTarget.className += " active";
             }
         </script>
-        
+
         <script>
-            fetch('https://jsonplaceholder.typicode.com/posts')
-                .then(response => response.json())
-                .then(function( json ) {
-                    var posts = [];
-                    $.each( json, function( key, val ) {
-                        posts.push("<h3>" + val.title + "</h3>");
-                        posts.push("<p>" + val.body + "</p>");
+            function getUsers(){
+                var users = [];
+                $.get( "https://jsonplaceholder.typicode.com/users", function( data ) {
+                    $( ".result" ).html( data );
+                    //$( "body" ).append("<div id='users' class='tabcontent'></div>");
+                    $.each( data, function( key, val ) {
+                        users.push(
+                            "<div id="+ val.id +">" +
+                                "<button class='accordion'><h3>" + val.name + "</h3></button>" +
+                                "<div class='panel'>" + val.username + "</div>" +
+                            "</div>"
+                        );
+                    });
+                    $("#users").append(users);
+                });
+               
+            }
+            getUsers();
+            
+            function getPosts(){
+                var posts = [];
+                $.get( "https://jsonplaceholder.typicode.com/posts", function( data ) {
+                    $( ".result" ).html( data );
+                    //$( "body" ).append("<div id='posts' class='tabcontent'></div>");
+                    $.each( data, function( key, val ) {
+                        posts.push(
+                            "<div id="+ val.id +">" +
+                                "<button class='accordion'><h3>" + val.title + "</h3></button>" +
+                                "<div class='panel'>" + val.body + "</div>" +
+                            "</div>"
+                        );
                     });
                     $("#posts").append(posts);
-                })
+                });
+                accordion()
+            }
+            getPosts()
             
+            function getComments(){
+                var comments = [];
+                $.get( "https://jsonplaceholder.typicode.com/comments", function( data ) {
+                    $( ".result" ).html( data );
+                   // $( "body" ).append("<div id='comments' class='tabcontent'></div>");
+                    $.each( data, function( key, val ) {
+                        comments.push(
+                            "<div id="+ val.id +">" +
+                                "<button class='accordion'><h3>" + val.name + "</h3></button>" +
+                                "<div class='panel'>" + val.body + "</div>" +
+                            "</div>"
+                        );
+                    });
+                    $("#comments").append(comments);
+                });
+            }
+            getComments();
+            
+            function accordion(){
+                var acc = document.getElementsByClassName("accordion");
+                var i;
+                
+                for (i = 0; i < acc.length; i++) {
+                    acc[i].addEventListener("click", function() {
+                        this.classList.toggle("active");
+                        var panel = this.nextElementSibling;
+                        if (panel.style.display === "block") {
+                            panel.style.display = "none";
+                        } else {
+                            panel.style.display = "block";
+                        }
+                    });
+                }
+            }
+            
+        </script>    
+    
+    <!--
+        <script>
+            function check(){
+                document.getElementById('f1').innerHTML = document.postVal.postTitle.value + ' ' + 
+                document.postVal.postContent.value;
+            }
 
             // POST adds a random id to the object sent
-            var sendNewPost = function(title, body, userId){
+            function sendPost(){
                 fetch('https://jsonplaceholder.typicode.com/posts', {
                     method: 'POST',
                     body: JSON.stringify({
-                        title: document.getElementById("postVal").value,
-                        body: document.getElementById("commentVal").value,
+                        title: document.getElementById('f1').innerHTML = document.postVal.postTitle.value,
+                        body: document.getElementById('f2').innerHTML = document.postVal.postContent.value,
                         userId: 1
                     }),
                     headers: {
@@ -136,26 +209,30 @@
                     }
                 })
                 .then(response => response.json())
-                .then(function( json ) {
-                    var newPost = [];
-                    $.each( json, function( key, val ) {
-                        newPost.push("<h3>" + val.title + "</h3>");
-                        newPost.push("<p>" + val.body + "</p>");
-                    });
-                    $("#newPost").append(newPost);
-                    console.log(newPost)
-                });
+                .then(json => console.log(json));
             }
-
-            /* will return
-            {
-            id: 101,
-            title: 'foo',
-            body: 'bar',
-            userId: 1
-            }
-            */
-
         </script>
+
+    
+        <form id="commentVal" class="commentVal" method="post" action="/posts">
+            <p>Título do Comentário:</p>
+                <input class="inputText" type="text" placeholder="Título do comentário"><br>
+            <p>Conteúdo do Comentário:</p>
+                <input class="inputText" type="text" placeholder="Conteúdo do comentário"><br>
+            <p>
+            <input type="submit" onclick="check(); return false" value="Submit">
+        </form>
+        <form id="newPosts" name="postVal">
+            <p>Título do Post:</p>
+                <input type="text" class="inputText" name="postTitle" placeholder="Título do Post"><br>
+            <p>Conteúdo do Post:</p>
+                <input type="text" class="inputText" name="postContent" placeholder="Conteúdo do Post"><br>
+            <p>
+            <input type="submit" onclick="sendPost(); return false">
+        </form>
+        <p id="f1"></p>
+        <p id="f2"></p>
+        <ul id="newPost"></ul>
+    -->
     </body>
 </html>
