@@ -16,7 +16,6 @@
             #posts {
                 margin: 0;
                 padding: 0;
-                list-style-type: none;
             }
 
             /* Style the tab */
@@ -50,7 +49,6 @@
 
             /* Style the tab content */
             .tabcontent {
-                display: none;
                 border: 1px solid #ccc;
                 border-top: none;
             }
@@ -59,6 +57,7 @@
                 width: 100%;
             }
 
+            /*Accordion*/
             .accordion {
                 background-color: #fff;
                 color: #444;
@@ -71,24 +70,123 @@
                 font-size: 15px;
                 transition: 0.4s;
             }
-
             .active, .accordion:hover {
-                background-color: #ccc; 
+                background-color: #ddd; 
             }
 
             .panel {
                 padding: 0 18px;
+                display: block;
                 background-color: white;
                 overflow: hidden;
+            }
+
+            .usersForm {
+                padding: 0 18px;
+                display: none;
+                background-color: white;
+                overflow: hidden;
+            }
+
+            .enviar {
+                background-color: #f1f1f1;
+                color: #444;
+                cursor: pointer;
+                padding: 18px;
+                width: 100%;
+                border: none;
+                text-align: left;
+                outline: none;
+                font-size: 15px;
+                transition: 0.4s;
+            }
+
+            .active, .enviar:hover {
+                background-color: #ddd; 
             }
 
         </style>
     </head>
     <body>
+        <script>
+            function getUsers(){
+                var users = [];
+                $.get( "https://jsonplaceholder.typicode.com/users", function( data ) {
+                    $( ".result" ).html( data );
+                    //$( "body" ).append("<div id='users' class='tabcontent'></div>");
+                    $.each( data, function( key, val ) {
+                        users.push(
+                            "<div>" +
+                                "<button id='"+ val.id +"' class='accordion' onclick='openFormPost()'><h3 id='"+ val.id +"'>" + val.name + "</h3></button>" +
+                                "<div  id='fp" + val.id + "'class='usersForm'>" + 
+                                    "<form id='newPosts' name='postVal'>" +
+                                        "<p>Nome do usuário</p>" +
+                                            "<input id='fipn"+ val.id +"' type='text' class='inputText' name='fipn"+ val.id +"' value="+ val.username +" placeholder='Nome do usuário'><br>" +
+                                        "<p>Título do Post:</p>" +
+                                            "<input id='fipt"+ val.id +"' type='text' class='inputText' name='fipt"+ val.id +"' value='' placeholder='Título do Post'><br>" +
+                                        "<p>Conteúdo do Post:</p>" +
+                                            "<input id='fipc"+ val.id +"' type='text' class='inputText' name='fipc"+ val.id +"' value='' placeholder='Conteúdo do Post'><br>" +
+                                        "<p>" + 
+                                        "<input type='submit' class='enviar' onclick='sendPost(); return false'>" +
+                                    "</form>" +
+                                "</div>" +
+                            "</div>"
+                        );
+                    });
+                    $("#users").append(users);
+                });
+                
+            }
+            getUsers();
+            
+            function getPosts(){
+                var posts = [];
+                $.get( "https://jsonplaceholder.typicode.com/posts", function( data ) {
+                    $( ".result" ).html( data );
+                    //$( "body" ).append("<div id='posts' class='tabcontent'></div>");
+                    $.each( data, function( key, val ) {
+                        posts.push(
+                            "<div>" +
+                                "<button id='"+ val.id +"' class='accordion' onclick='openFormComment()'><h3 id='"+ val.id +"'>" + val.title + "</h3></button>" +
+                                "<div class='panel'>" + val.body + "</div>" +
+                                "<div  id='fc" + val.id + "'class='usersForm'>" + 
+                                    "<form id='newComments' name='postVal'>" +
+                                        "<p>Conteúdo do Comentário:</p>" +
+                                            "<input id='ficc"+ val.id +"' type='text' class='inputText' name='postComment' value='' placeholder='Conteúdo do comentário'><br>" +
+                                        "<p>" + 
+                                        "<input type='submit' class='enviar' onclick='sendComment(); return false'>" +
+                                    "</form>" +
+                                "</div>" +
+                            "</div>"
+                        );
+                    });
+                    $("#posts").append(posts);
+                });
+            }
+            getPosts()
+            
+            function getComments(){
+                var comments = [];
+                $.get( "https://jsonplaceholder.typicode.com/comments", function( data ) {
+                    $( ".result" ).html( data );
+                    // $( "body" ).append("<div id='comments' class='tabcontent'></div>");
+                    $.each( data, function( key, val ) {
+                        comments.push(
+                            "<div>" +
+                                "<button id='btnFormComments' class='accordion'><h3>" + val.name + "</h3></button>" +
+                                "<div class='panel'>" + val.body + "</div>" +
+                            "</div>"
+                        );
+                    });
+                    $("#comments").append(comments);
+                });
+            }
+            getComments();
+        </script>
         <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'posts')">Posts</button>
-            <button class="tablinks" onclick="openTab(event, 'users')">Users</button>
-            <button class="tablinks" onclick="openTab(event, 'comments')">Comments</button>
+            <button id="btnPosts" class="tablinks" onclick="openTab(event, 'posts')">Posts</button>
+            <button id="btnUsers" class="tablinks" onclick="openTab(event, 'users')">Users</button>
+            <button id="btnComments" class="tablinks" onclick="openTab(event, 'comments')">Comments</button>
         </div>
         
         <div id='posts' class='tabcontent'></div>
@@ -100,109 +198,66 @@
             function openTab(evt, tag) {
                 var tabcontent, tablinks;
                 tabcontent = document.getElementsByClassName("tabcontent");
+                tablinks = document.getElementsByClassName("tablinks");
+
                 for (var i = 0; i < tabcontent.length; i++) {
                     tabcontent[i].style.display = "none";
                 }
-                tablinks = document.getElementsByClassName("tablinks");
                 for (var i = 0; i < tablinks.length; i++) {
                     tablinks[i].className = tablinks[i].className.replace(" active", "");
                 }
                 document.getElementById(tag).style.display = "block";
                 evt.currentTarget.className += " active";
             }
-        </script>
-
-        <script>
-            function getUsers(){
-                var users = [];
-                $.get( "https://jsonplaceholder.typicode.com/users", function( data ) {
-                    $( ".result" ).html( data );
-                    //$( "body" ).append("<div id='users' class='tabcontent'></div>");
-                    $.each( data, function( key, val ) {
-                        users.push(
-                            "<div id="+ val.id +">" +
-                                "<button class='accordion'><h3>" + val.name + "</h3></button>" +
-                                "<div class='panel'>" + val.username + "</div>" +
-                            "</div>"
-                        );
-                    });
-                    $("#users").append(users);
-                });
-               
-            }
-            getUsers();
             
-            function getPosts(){
-                var posts = [];
-                $.get( "https://jsonplaceholder.typicode.com/posts", function( data ) {
-                    $( ".result" ).html( data );
-                    //$( "body" ).append("<div id='posts' class='tabcontent'></div>");
-                    $.each( data, function( key, val ) {
-                        posts.push(
-                            "<div id="+ val.id +">" +
-                                "<button class='accordion'><h3>" + val.title + "</h3></button>" +
-                                "<div class='panel'>" + val.body + "</div>" +
-                            "</div>"
-                        );
-                    });
-                    $("#posts").append(posts);
-                });
-                accordion()
-            }
-            getPosts()
-            
-            function getComments(){
-                var comments = [];
-                $.get( "https://jsonplaceholder.typicode.com/comments", function( data ) {
-                    $( ".result" ).html( data );
-                   // $( "body" ).append("<div id='comments' class='tabcontent'></div>");
-                    $.each( data, function( key, val ) {
-                        comments.push(
-                            "<div id="+ val.id +">" +
-                                "<button class='accordion'><h3>" + val.name + "</h3></button>" +
-                                "<div class='panel'>" + val.body + "</div>" +
-                            "</div>"
-                        );
-                    });
-                    $("#comments").append(comments);
-                });
-            }
-            getComments();
-            
-            function accordion(){
-                var acc = document.getElementsByClassName("accordion");
-                var i;
-                
-                for (i = 0; i < acc.length; i++) {
-                    acc[i].addEventListener("click", function() {
-                        this.classList.toggle("active");
-                        var panel = this.nextElementSibling;
-                        if (panel.style.display === "block") {
-                            panel.style.display = "none";
-                        } else {
-                            panel.style.display = "block";
-                        }
-                    });
+            var isOpenFormPost = false;
+            function openFormPost(){
+                if(isOpenFormPost === false){
+                    document.getElementById('fp' + event.target.id).style.display = "block";
+                    isOpenFormPost = true;
+                }else{
+                    document.getElementById('fp' + event.target.id).style.display = "none";
+                    isOpenFormPost = false;
                 }
-            }
-            
-        </script>    
-    
-    <!--
-        <script>
-            function check(){
-                document.getElementById('f1').innerHTML = document.postVal.postTitle.value + ' ' + 
-                document.postVal.postContent.value;
-            }
+
+            };
+
+            var isOpenFormComment = false;
+            function openFormComment(){
+                if(isOpenFormComment === false){
+                    document.getElementById('fc' + event.target.id).style.display = "block";
+                    console.log(document.getElementById('fc' + event.target.id).style.display)
+                    isOpenFormComment = true;
+                }else{
+                    document.getElementById('fc' + event.target.id).style.display = "none";
+                    isOpenFormComment = false;
+                }
+
+            };
 
             // POST adds a random id to the object sent
             function sendPost(){
                 fetch('https://jsonplaceholder.typicode.com/posts', {
                     method: 'POST',
                     body: JSON.stringify({
-                        title: document.getElementById('f1').innerHTML = document.postVal.postTitle.value,
-                        body: document.getElementById('f2').innerHTML = document.postVal.postContent.value,
-                        userId: 1
+                        //username: document.getElementById('f1').innerHTML = document.postVal.userName.value,
+                        title: document.getElementsByName("fipt" + event.target.id).value,
+                        body: document.getElementsByName("fipc" + event.target.id).value
+                    }),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                })
+                .then(response => response.json())
+                .then(json => console.log(json));
+            }
+
+             // POST adds a random id to the object sent
+             function sendComment(){
+                fetch('https://jsonplaceholder.typicode.com/comments', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        body: document.getElementsByName("ficc" + event.target.id).value
                     }),
                     headers: {
                         "Content-type": "application/json; charset=UTF-8"
@@ -212,27 +267,5 @@
                 .then(json => console.log(json));
             }
         </script>
-
-    
-        <form id="commentVal" class="commentVal" method="post" action="/posts">
-            <p>Título do Comentário:</p>
-                <input class="inputText" type="text" placeholder="Título do comentário"><br>
-            <p>Conteúdo do Comentário:</p>
-                <input class="inputText" type="text" placeholder="Conteúdo do comentário"><br>
-            <p>
-            <input type="submit" onclick="check(); return false" value="Submit">
-        </form>
-        <form id="newPosts" name="postVal">
-            <p>Título do Post:</p>
-                <input type="text" class="inputText" name="postTitle" placeholder="Título do Post"><br>
-            <p>Conteúdo do Post:</p>
-                <input type="text" class="inputText" name="postContent" placeholder="Conteúdo do Post"><br>
-            <p>
-            <input type="submit" onclick="sendPost(); return false">
-        </form>
-        <p id="f1"></p>
-        <p id="f2"></p>
-        <ul id="newPost"></ul>
-    -->
     </body>
 </html>
